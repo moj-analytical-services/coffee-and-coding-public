@@ -26,7 +26,10 @@ chick_weight[Time == 21, .(average_weight = mean(weight)), by = Diet]
 ## Add a new column that is TRUE when weight is 100 or more
 
 # In one line
-chick_weight[, heavy := ifelse(weight < 100, FALSE, TRUE)]
+chick_weight[, heavy := weight >= 100]
+
+# Alternative in one line (if you don't have a logical outcome this might be needed)
+chick_weight[, heavy := ifelse(weight >= 100, FALSE, TRUE)]
 
 # Alternative with subsetting
 chick_weight[weight < 100, heavy := FALSE]
