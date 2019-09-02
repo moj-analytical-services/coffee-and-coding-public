@@ -29,7 +29,7 @@ The above is a quote from the JupyterLab website. First I am going to just demo 
   * Whats a cell?
   * Explain stuff left to right?
   * Cell format _(markdown, code, raw)_
-  * What's a kernel
+  * What's a kernel (talk about restarting it!)
 
 # Next...
 
