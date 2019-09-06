@@ -30,6 +30,21 @@ The format is generally 30-40 minutes for a presentation, followed by time for q
 
 Watch this space for developments!
 
+## Notes for presenters
+
+Thank you for volunteering to present at Coffee & Coding! Here is a checklist of things a member of the Coffee & Coding team may ask you.
+
+* A few weeks before the presentation, please provide a short description of your talk that we can include in the calendar invite & on our Coffee and Coding repositories
+* Please make sure you're able to present over Skype to ensure your presentation is flexible working friendly
+* If there's any material you'd like to be available to participants during the session (for example if you are doing a tutorial), make sure you add this to our repositories before the session
+
+Let us know if you're happy for us to:
+* Share the talk description and/or material on our [publically available repo](https://github.com/moj-analytical-services/Coffee-and-Coding-public) as well as our [private repo](https://github.com/moj-analytical-services/Coffee-and-Coding) viewable to anyone with an Analytical Platform account. (Check with your line manager if you're in any doubt)
+* Record the session to share with anyone unable to attend
+* Invite HMRC along (if your talk will be at 10SC & is likely to be relevant to analysts outside of MoJ)
+
+If you have any questions or problems the best person to speak to is the member of the team who has organised your talk. If they are away you can email our mailbox [Coffee-and-Coding@justice.gov.uk](Coffee-and-Coding@justice.gov.uk). If urgent, you may want to email another member of the team directly to ensure we don't miss your email.
+
 ## Contributing to this repository
 
 If you have presented or demonstrated at a session, please consider sharing your presentation in the repository. To add new content please work on a branch and submit a pull request. The branch will then be reviewed by an administrator before merging.
