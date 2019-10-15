@@ -1,0 +1,249 @@
+---
+title: "main_code"
+author: "George Papadopoulos"
+date: "10/06/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## MLR Package Basics
+
+```{r}
+
+#######################################################
+# Initial set up
+#######################################################
+
+
+# We will use two packages here
+library(mlr)
+library(mlbench)
+
+## Data comes with MLR
+data(Soybean)
+
+## Create a series of pseudo parameters so as to make classification easier to handle
+soy = createDummyFeatures(Soybean, target = "Class")
+
+## Create a Classification Task
+task = makeClassifTask(data = soy, target = "Class")
+
+
+## set up the kind of resampling that  is preferable
+hol = makeResampleInstance("Holdout", task)
+
+## create the training and test set from the data at hand
+task.train = subsetTask(task, hol$train.inds[[1]]) 
+  
+task.test = subsetTask(task, hol$test.inds[[1]])
+
+######################################################
+
+#info on the parameters of xgBoost
+getParamSet("classif.xgboost")
+
+
+## Create a Learner object
+l1 = makeLearner("classif.xgboost",nrounds=4)
+
+
+
+## more inforamtion on Learners
+# View(listLearners())
+
+# Each learner comes with its own package and will be incorporated in MLR
+
+## set up the resampling mechanism
+cv = makeResampleDesc("CV",iters=5)
+
+## Resampling here also covers training the system and so this will suffice to train the system 
+res1 = resample(l1,task.train,cv,acc, models = T)
+
+## the Resampling instance hold also the models for each iteration
+pred1 = predict(res1$models[[2]],task.test) 
+
+plotResiduals(pred1)
+
+
+### alternatively we could using the train function
+
+m1 = train(l1,task.train)
+
+
+## the end result will be to see how well the system predicts the test data
+pred1.1 = predict(m1,task.test)
+
+## usually a confusion matrix is used to see the class allocation at the end of the prediction
+c1 = calculateConfusionMatrix(pred1.1)
+
+## residual plot to see model performance
+plotResiduals(pred1.1)
+
+## retrain witht he whole set to refine results 
+m1= train(l1,task)
+
+
+#learning curve plot
+a = generateLearningCurveData(l1,task.train)
+
+plotLearningCurve(a)
+plotLearningCurveGGVIS(a)
+
+
+
+```
+
+
+
+
+
+## Using NNs
+
+```{r}
+
+###############################################################
+# Try a different learner
+# this is a classification task
+#
+###############################################################
+
+
+library(mlr)
+library(mlbench)
+
+
+## info on the params for the nnet learner
+
+getParamSet("classif.nnet")
+
+## Same data as before
+data(Soybean)
+
+soy = createDummyFeatures(Soybean, target = "Class")
+
+## some learners have specific requirements on the data. Make sure you chek these out
+## here the learner will not accept NAs in the data structure.
+## The following line removes NAs and replaces them with 0
+soy[is.na(soy)] <- 0
+
+# define the task
+task = makeClassifTask(data = soy, target = "Class")
+
+## set up resampling instances
+hol = makeResampleInstance("Holdout", task)
+
+# select training and test sets
+task.train = subsetTask(task, hol$train.inds[[1]]) 
+  
+task.test = subsetTask(task, hol$test.inds[[1]])
+
+
+## define the learner as before
+## try defferent values ofr the hyperp[arameters to see the difference]
+l2 = makeLearner("classif.nnet",size=7, maxit=250)
+
+## set up the cross validation methodology that we want
+cv = makeResampleDesc("CV",iters=6)
+
+## reasample / train
+res2 = resample(l2,task.train,cv,acc, models = T)
+
+pred2 = predict(res2$models[[6]],task.train)
+
+plotResiduals(pred2)
+## alternatively train the system in a separate step
+
+m2 = train(l2,task.train)
+
+## use it to predict
+pred2.1 = predict(m2,task.test)
+
+## Plot residuals
+plotResiduals(pred2.1)
+
+
+#finally train using the whole set
+m2 = train(l2,task)
+
+
+## plot the learning curve
+b = generateLearningCurveData(l2,task)
+
+plotLearningCurve(b)
+plotLearningCurveGGVIS(b)
+
+
+
+```
+
+## Using SVMs
+
+```{r}
+
+
+
+
+
+###################################################
+#
+#using SVMS
+#
+###################################################
+
+getParamSet("classif.svm")
+
+
+data(Soybean)
+
+soy = createDummyFeatures(Soybean, target = "Class")
+
+soy[is.na(soy)] <- 0
+
+
+task = makeClassifTask(data = soy, target = "Class")
+
+hol = makeResampleInstance("Holdout", task)
+
+task.train = subsetTask(task, hol$train.inds[[1]]) 
+  
+task.test = subsetTask(task, hol$test.inds[[1]])
+
+## adjust the gamma parameter which seems to relate to the spread  of the radial base functions 
+l3 = makeLearner("classif.svm", kernel="radial", gamma = 0.02)
+
+cv = makeResampleDesc("CV",iters=7)
+
+res3 = resample(l3,task.train,cv,acc, models = T)
+
+pred3 = predict(res3$models[[7]],task.test)
+
+plotResiduals(pred3)
+
+
+## making a model
+
+m3 = train(l3,task.train)
+
+
+pred3.1 = predict(m3,task.test)
+
+plotResiduals(pred3.1)
+
+
+c = generateLearningCurveData(l3,task)
+
+plotLearningCurve(c)
+plotLearningCurveGGVIS(c)
+
+
+
+
+
+```
+
+
+
+

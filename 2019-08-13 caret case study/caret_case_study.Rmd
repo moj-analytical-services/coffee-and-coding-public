@@ -1,0 +1,300 @@
+---
+title: "Caret case studies"
+output:
+  html_document:
+    df_print: paged
+    toc: true
+    toc_float: true
+---
+
+
+```{r setup, warning = FALSE, message = FALSE, results='hide'}
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(caret)
+
+knitr::opts_chunk$set(echo = T,
+                      warning = FALSE)
+```
+
+```{r outcome options}
+# Set name of outcome of interest
+outcome <- "Total"
+# Options:
+# "ArsonandCriminalDamage"           
+# "Burglary"                            
+# "DrugOffences"                       
+# "MiscellaneousCrimesAgainstSociety"
+# "PossessionofWeapons"               
+# "PublicOrderOffences"               
+# "Robbery"                             
+# "SexualOffences"                     
+# "Theft"                               
+# "VehicleOffences"                    
+# "ViolenceAgainstthePerson"
+# "Total"
+```
+
+# Feature engineering
+
+First, we must load our data and make sure it's in a shape where R and caret will know how to handle it.
+
+We use open data from the Greater London Authority:
+
+- Borough profiles: https://data.london.gov.uk/dataset/london-borough-profiles
+- Borough crime statistics: https://data.london.gov.uk/dataset/recorded_crime_summary 
+
+Note that the profile predictors reflect data collected in many different years. Ideally, this would not be the case, especially since some of these variables may have fairly high variance over time!
+
+```{r load profiles}
+# Prepare Borough profiles
+download.file("https://data.london.gov.uk/dataset/london-borough-profiles/resource/80647ce7-14f3-4e31-b1cd-d5f7ea3553be/download",
+              "borough_profiles.xlsx")
+borough_profiles <- readxl::read_excel("borough_profiles.xlsx",
+                               sheet = "Data") %>%
+  # Remove ID columns (except borough name)
+  dplyr::select(-"Code", -"New code") %>%
+  # Remove NA rows (incl. group-level rows)
+  tidyr::drop_na() %>%
+  # Replace all "." where the cell should be empty
+  dplyr::mutate_if(is.character, list(~na_if(., "."))) %>%
+  dplyr::mutate_if(is.character, list(~na_if(., "n/a")))
+# Coerce everything to numeric
+borough_profiles[,3:ncol(borough_profiles)] <- apply(borough_profiles[,3:ncol(borough_profiles)], 2, as.numeric)
+# Remove columns that are now all-NA because of the numeric type
+borough_profiles <- borough_profiles %>% 
+  dplyr::select_if(function (x) all(!is.na(x)))
+```
+
+We will only keep crime data from January 2018. If useful to you, there is information available on how to use caret for [time series data](https://topepo.github.io/caret/data-splitting.html#data-splitting-for-time-series) instead.
+
+```{r load crime}
+# Prepare Borough crime stats
+borough_crime <- read.csv("https://data.london.gov.uk/download/recorded_crime_summary/d2e9ccfc-a054-41e3-89fb-53c2bc3ed87a/MPS%20Borough%20Level%20Crime%20%28most%20recent%2024%20months%29.csv")
+
+# Create summary of the crime information
+borough_crime <- borough_crime %>% 
+  dplyr::group_by(LookUp_BoroughName, MajorText) %>%
+  dplyr::summarize_if(is.numeric, sum, na.rm=TRUE) %>%
+  # Only keep January 2018 data
+  dplyr::select(LookUp_BoroughName, MajorText, X201801) %>%
+  tidyr::spread(MajorText, X201801) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(Total = rowSums(.[2:12])) 
+```
+
+Once the crime statistics and the borough profiles are joined together, this is the final data we will use for modelling.
+
+```{r join features and predictors}
+borough_summ <- dplyr::right_join(borough_profiles, borough_crime,
+                                  by = c("Area name" = "LookUp_BoroughName"))
+(borough_summ)
+# Keep only columns of interest
+cols_ofinterest <- c(outcome, colnames(borough_profiles))
+borough_summ <- borough_summ[, cols_ofinterest] %>%
+  dplyr::select(-`Area name`)
+# Make column names R-friendly
+colnames(borough_summ) <- gsub("\\.", "", make.names(colnames(borough_summ), unique=TRUE))
+borough_summ <- borough_summ %>%
+  dplyr::filter(!is.na(InnerOuterLondon))
+```
+
+# Preprocess data
+
+## Visualise data
+
+It is very important to **look at your data** before attempting any sort of machine learning. Exploratory Data Analysis (EDA) is a widely underappreciated step. caret allows you to inspect your data using various visualisations and in various combinations, so you can see if any variables are collinear, if any appear like random noise, and if their distribution is as the algorithms you will use expects them to be. 
+
+You can plot scatterplots between all predictors and the outcome of interest to find any clearly correlated combinations.
+
+```{r scatterplot, fig.height = 5}
+caret::featurePlot(x = borough_summ[, c(4:12)], 
+            y = pull(borough_summ[, outcome]), 
+            plot = "scatter",
+            type = c("p", "smooth"),
+            layout = c(3, 3))
+```
+
+You can plot the predictors against each other to see if any are hugely overlapping. 
+
+```{r paired matrix, fig.height = 8}
+caret::featurePlot(x = borough_summ[, c(13:20)], 
+            y = pull(borough_summ[, outcome]), 
+            plot = "pairs")
+```
+
+You can also compare density plots between groups of a categorical variable (in this case, whether a borough is deemed 'Inner' or 'Outer' London).
+
+```{r density plot, fig.height = 4}
+caret::featurePlot(x = borough_summ[, 46:49], 
+            y = as.factor(borough_summ$InnerOuterLondon), 
+            plot = "density",
+            scales = list(x = list(relation="free"), 
+                          y = list(relation="free")), 
+            adjust = 1.5, 
+            pch = "|", 
+            layout = c(4, 1))
+```
+
+## Creating Dummy variables
+
+caret automatically identifies non-numeric variables (in our case, only InnerOuterLondon) and turns it into dummy variables (one-hot encoded), leaving the numeric variables untouched. 
+
+```{r dummy variables}
+dummies <- caret::dummyVars(as.formula(paste0(outcome, " ~ .")), 
+                     data = borough_summ)
+borough_summ_d <- as.data.frame(predict(dummies, newdata = borough_summ)) %>%
+  dplyr::select(-`InnerOuterLondonOuter London`) %>%
+  dplyr::mutate(!!outcome := borough_summ$Total)
+```
+
+## Splitting data
+
+In machine learning, it is standard to separate all the data into a training set and a test set (usually in some 80-20 or 70-30 split). The training set is used to train and tune the algorithms. The test set is not used for training at all, and is used as 'new observations' to see how the model will perform out in the real world. 
+
+However, there are some drawbacks to this method, and it is important to also verify performance using genuinely newly collected data, to check stability over time and also to ensure that biases contained in the original data collection are not embedded into the model. 
+
+```{r splitting}
+trainIndex <- caret::createDataPartition(borough_summ_d[, outcome], 
+                                         # 80-20% split
+                                         p = .8, 
+                                         list = FALSE, 
+                                         times = 1)
+training <- borough_summ_d[trainIndex, ]
+test <- borough_summ_d[-trainIndex, ]
+```
+
+
+## Centering and Scaling
+
+Preprocessing should be done on the basis of training data only.
+
+We can impute missing values (using K-nearest neighbours), center our data (mean = 0), and scale it (standard deviation = 1). 
+
+```{r centering scaling}
+# No need to scale outcome variable
+pre_proc <- caret::preProcess(training[, names(training) != outcome], 
+                              method = c("knnImpute", "center", "scale"))
+
+train_t <- predict(pre_proc, training[, names(training) != outcome]) %>%
+  dplyr::mutate(!!outcome := training[, outcome])
+test_t <- predict(pre_proc, test[, names(test) != outcome]) %>%
+  dplyr::mutate(!!outcome := test[, outcome])
+(test_t)
+
+# Make column names R-friendly
+colnames(train_t) <- gsub("\\.", "", make.names(colnames(train_t), unique=TRUE))
+colnames(test_t) <- gsub("\\.", "", make.names(colnames(test_t), unique=TRUE))
+```
+
+You can even reduce feature space by applying Principal Component Analysis!
+
+```{r pca}
+pre_pca <- caret::preProcess(training[, names(training) != outcome], 
+                             method = c("pca"))
+
+train_pca <- predict(pre_pca, training[, names(training) != outcome]) %>%
+  dplyr::mutate(!!outcome := training[, outcome])
+test_pca <- predict(pre_pca, test[, names(test) != outcome]) %>%
+  dplyr::mutate(!!outcome := test[, outcome])
+
+# Make column names R-friendly
+colnames(train_pca) <- gsub("\\.", "", make.names(colnames(train_pca), unique=TRUE))
+colnames(test_pca) <- gsub("\\.", "", make.names(colnames(test_pca), unique=TRUE))
+```
+
+# Model training and tuning
+
+## Cross-validation
+
+When training machine learning models, we must avoid overfitting to the data, especially when our dataset is so small. To do this, we can use cross-validation.
+
+We divide our data into k groups or 'folds', and run the algorithm k times, using k-1 groups to train and the k'th group to validate the model. We finally calculate the average performance of the model across all the folds. This averaged performance score is what we compare between different model parameters to finally choose the best set of parameters. 
+
+Moreover, some models use a randomised starting position. caret allows you to repeat the algorithm a few times to make sure the results are stable over each repeat, and not due to some quirk of the randomisation.
+
+```{r traincontrol}
+fitControl <- caret::trainControl(## 10-fold cross-validation
+                           method = "repeatedcv",
+                           number = 10,
+                           ## repeated ten times
+                           repeats = 10)
+```
+
+## Model training & tuning
+
+Next, we must select the model we want to fit. You must do this on the basis of what you know about your data and problem, and not be afraid to test a few different ones to make sure you're getting the most value. caret has a huge list of models available, which you can [find here](https://topepo.github.io/caret/available-models.html). 
+
+We will fit a boosted tree model contained within the [*mboost*](https://www.rdocumentation.org/packages/mboost/versions/2.9-1/topics/blackboost) package. This model trains successive shallow regression trees, such that the second tree is fitted to reduce the residuals of the first tree, etc. This model has two hyperparameters we can tune: mstop (number of boosting iterations) and maxdepth (maximum depth of each individual tree).
+
+Depending on your problem, you may also want to decide if you're interested in a different metric. You may choose to optimise for Root Mean Squared Error (RMSE, default), R Squared (Rsquared), or Mean Absolute Error (MAE). 
+
+```{r boosted tree}
+blackboostGrid <- expand.grid(mstop = c(5, 10, 15, 25, 30),
+                              maxdepth = c(3, 5, 10, 25))
+
+blackboostFit <- caret::train(form = Total ~ ., 
+                       data = train_t, 
+                       method = "blackboost", 
+                       trControl = fitControl,
+                       tuneGrid = blackboostGrid,
+                       metric = "RMSE")
+plot(blackboostFit)
+blackboostFit
+```
+
+## Model interpretation
+
+With an opaque model like boosted trees, it can be useful to find which variables end up being important to the final score. Different algorithms have different ways of calculating variable importance. caret allows you to access whichever method you like using the *varImp* function. This allows us to interpret why our boosted trees come to the results that they do. 
+
+```{r variable importance}
+var_imp <- caret::varImp(blackboostFit)$importance
+var_imp$variable <- rownames(var_imp)
+(var_imp <- var_imp %>%
+  dplyr::arrange(-Overall))
+```
+
+## Model performance
+
+Although the train object tells us the Root Mean Squared Error (RMSE), Rsquared and Mean Absolute Error (MAE), we may want to visually inspect the predictions to see if they behave as expected and if there are no hugely odd outliers. 
+
+```{r visualise calibration}
+plot(train_t[, outcome], predict(blackboostFit, newdata = train_t),
+     main = "Not bad",
+     xlab = "True",
+     ylab = "Predicted")
+```
+
+This is also where we look at its performance in the test data we have held out until now, and check that the model doesn't overfit terribly to the training data!
+
+```{r test results}
+plot(test_t[, outcome], predict(blackboostFit, newdata = test_t),
+     main = "Overfitting?",
+     xlab = "True",
+     ylab = "Predicted")
+```
+
+# Comparing models
+
+You will likely want to try out several models and pick the one that works best for your data. caret makes it really easy to compare their performances.
+
+Let's try training a generalised linear model, which has no hyperparameters to tune.
+
+```{r fit glm}
+glmFit <- caret::train(form = Total ~ ., 
+                       data = train_t, 
+                       method = "glm", 
+                       trControl = fitControl,
+                       metric = "RMSE")
+glmFit
+```
+
+Then, we make a set of resampling results using both the models. The *summary* function then describes how the two models perform on the three performance metrics for regression. 
+
+```{r resamples}
+resamp <- caret::resamples(list(BlackBoost = blackboostFit,
+                                GLM = glmFit))
+summary(resamp)
+```
+
