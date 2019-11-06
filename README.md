@@ -42,6 +42,7 @@ Let us know if you're happy for us to:
 * Share the talk description and/or material on our [publically available repo](https://github.com/moj-analytical-services/Coffee-and-Coding-public) as well as our [private repo](https://github.com/moj-analytical-services/Coffee-and-Coding) viewable to anyone with an Analytical Platform account. (Check with your line manager if you're in any doubt)
 * Record the session to share with anyone unable to attend
 * Invite analysts from other departments along (if your talk is likely to be of interest to analysts outside of MoJ)
+* Offer to give your presentation at another Government Department C&C session - this is a great way to get your material out to a wider audience, practice your presenting skills and meet other coders across Government!
 
 If you have any questions or problems the best person to speak to is the member of the team who has organised your talk. If they are away you can email our mailbox [Coffee-and-Coding@justice.gov.uk](Coffee-and-Coding@justice.gov.uk). If urgent, you may want to email another member of the team directly to ensure we don't miss your email.
 
