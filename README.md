@@ -12,7 +12,7 @@ Need more information? Interested in presenting or helping to organise meetings?
 The MoJ Coffee and Coding Committee are:
 * Katharine Breeze
 * Matt Funnell
-* Megan Stodel
+* Neil Wilkins
 * Charlotte Wallace
 * David Hawes
 
