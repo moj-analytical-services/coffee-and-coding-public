@@ -1,0 +1,186 @@
+---
+output:
+  pdf_document:
+    latex_engine: xelatex
+    fig_crop: no
+    fig_height: 16
+    fig_width: 30
+mainfont: Nimbus Sans L
+fontsize: 12pt
+geometry: margin=2cm
+---
+
+```{r, include=FALSE}
+# This is the main script to produce the report
+```
+
+```{r, include=FALSE}
+# Load packages
+library(knitr)
+library(pander)
+library(glue)
+```
+
+```{r setup, include=FALSE}
+# Some R Markdown setup options
+knitr::opts_chunk$set(echo = FALSE, include = FALSE)
+```
+
+```{r, warning=FALSE}
+# Call the other scripts to prepare the data and charts
+source("controls.R")
+source("prep_data.R")
+source("create_charts.R")
+```
+
+```{r, out.width = "250pt", echo=FALSE, include=TRUE}
+# Include the MoJ logo
+knitr::include_graphics("moj_logo.png")
+```
+
+
+### [Published `r publication_date`]{style="float:right"}
+
+<br><br>
+
+\begin{center}
+\Huge
+\textbf{Demo report on storms, as at `r end_of_year_date_text`}
+\normalsize
+\end{center}
+
+## Main Points
+
+```{r}
+# These variables contain the text for the Main Points part of the report
+
+storms_total_headline <- glue("**{num_storms_this_year} storms this year**")
+storms_total_text <- glue("This is {num_storms_headline_text} storms compared to last year. 
+Of the storms this year, there were
+{num_hu_storms_this_year} hurricanes,
+{num_ts_storms_this_year} tropical storms, and
+{num_td_storms_this_year} tropical depressions.")
+
+windspeed_headline <- glue("**Maximum windspeed of {max_windspeed_this_year} knots**")
+windspeed_text <- glue("This is {max_windspeed_headline_text} last year.")
+
+diameter_headline <- glue("**Maximum diameter of {max_diameter_this_year} nautical miles**")
+diameter_text <- glue("This is {max_diameter_headline_text} last year.")
+
+pressure_headline <- glue("**Minimum pressure of {min_pressure_this_year} millibars**")
+pressure_text <- glue("This is {min_pressure_headline_text} last year.")
+
+```
+
+
+```{r}
+# Construct a dataframe for the Main Points table
+
+summary_table <- data_frame(headline = list(storms_total_headline, " \\ ",
+                                            windspeed_headline, " \\ ",
+                                            diameter_headline, " \\ ",
+                                            pressure_headline),
+                            text = list(storms_total_text, " \\ ",
+                                        windspeed_text, " \\ ",
+                                        diameter_text, " \\ ",
+                                        pressure_text))
+names(summary_table) <- NULL
+```
+
+
+
+```{r, include=TRUE}
+# Display the Main Points table
+pander::pander(summary_table, split.cell = c(80, 160), split.table = Inf, table.style="rmarkdown", justify = c("left", "left"), keep.line.breaks = TRUE)
+```
+
+
+*This is an example of an automated report. It is based on a publicly available dataset that has no relation to the Ministry of Justice.*
+\pagebreak
+
+
+## 1. Number of storms
+
+```{r}
+# Define a dataframe with the headline for section 1
+s1_summary_table <- data_frame(column = list(storms_total_headline, storms_total_text))
+names(s1_summary_table) <- NULL
+```
+
+```{r, include=TRUE}
+# Display the headline
+pander::pander(s1_summary_table, table.style='rmarkdown', split.cell = Inf, split.table = Inf, table.style='rmarkdown', justify = 'left')
+```
+
+
+```{r}
+# Include the first paragraph of section 1
+s1_para_1 <- glue("The number of tropical cyclones per year has {num_storms_yearly_text} (Figure 1).")
+```
+
+`r s1_para_1`
+
+### Figure 1: Number of storms per year, from `r this_year-20` to `r this_year`
+
+```{r, include=TRUE, warning = FALSE, fig.align='left', fig.fullwidth = TRUE}
+# Include the chart for fig. 1
+num_storms_plot
+```
+
+
+\pagebreak
+
+
+## 2. Windspeed
+
+```{r}
+# Define a dataframe with the headline for section 2
+s2_summary_table <- data_frame(column = list(windspeed_headline, windspeed_text))
+names(s2_summary_table) <- NULL
+```
+
+```{r, include=TRUE}
+# Display the headline
+pander::pander(s2_summary_table, table.style='rmarkdown', split.cell = Inf, split.table = Inf, table.style='rmarkdown', justify = 'left')
+```
+
+```{r}
+# Include the first paragraph of section 2
+s2_para_1 <- glue("The maximum windspeed has ... (Figure 2).")
+```
+
+`r s2_para_1`
+
+### Figure 2: Maximum windspeed per year, from `r this_year-20` to `r this_year`
+
+```{r, include=TRUE, warning = FALSE, fig.align='left', fig.fullwidth = TRUE}
+# Include the chart for fig. 2
+
+```
+
+\pagebreak
+
+## Further Information
+
+### Contact
+
+Press enquiries should be directed to the press office:  
+Tel: 000 0000 0000  
+Email: email@email.com
+
+Other enquiries about these statistics should be directed to:
+
+|        Ministry of Justice, 
+|       10 North Colonnade, 
+|       London, 
+|       E14 4PH
+
+<br>
+
+**Next update: `r next_publication_date`**  
+**URL:** https://github.com/moj-analytical-services/coffee-and-coding-public   
+
+<br>
+
+Alternative formats are available on request
+
