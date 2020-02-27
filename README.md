@@ -4,6 +4,14 @@ The repository to host the slides and code that are presented at the MoJ Coffee 
 
 This repo is public to allow wider access of the MoJ C&C materials. Therefore, a limited number of sessions are not available in this repo. If you are a member of the moj-analytical-services organisation on github, you can access all sessions [here](https://github.com/moj-analytical-services/Coffee-and-Coding).
 
+## Contents
+
+- [Contact](#contact)
+- [Aim](#aim)
+- [Notes for presenters](#notes-for-presenters)
+- [Contributing to this repository](#contributing-to-this-repository)
+- [Schedule](#schedule)
+
 ## Contact
 
 Need more information? Interested in presenting or helping to organise meetings? Get in touch with our mailbox:
