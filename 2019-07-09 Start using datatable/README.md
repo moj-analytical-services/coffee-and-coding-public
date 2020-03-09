@@ -15,7 +15,7 @@ Highlighting some other resources that are useful if you are using data.table:
 
 Some additional links that might be useful (retrospectively added):
 -   [An introduction](https://www.r-bloggers.com/intro-to-the-data-table-package/)
--   [A more indepth introduction](https://rawgit.com/wiki/Rdatatable/data.table/vignettes/datatable-intro.html)
+-   [A more indepth introduction](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html)
 -   [Quick reference cheatsheet](https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf)
 -   [Notes on doing joins](https://rstudio-pubs-static.s3.amazonaws.com/52230_5ae0d25125b544caab32f75f0360e775.html)
 -   [Using keys and fast searches](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-keys-fast-subset.html)
