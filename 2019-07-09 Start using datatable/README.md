@@ -13,7 +13,7 @@ Highlighting some other resources that are useful if you are using data.table:
 - [A data.table and dplyr tour](https://atrebas.github.io/post/2019-03-03-datatable-dplyr/) (includes comparison of operations in both packages)
 - [Advanced tips and tricks with data.table](http://brooksandrew.github.io/simpleblog/articles/advanced-data-table/)
 
-Some additional links that might be useful (retrospectively added):
+Recommendations from others in DASD (retrospectively added):
 -   [An introduction](https://www.r-bloggers.com/intro-to-the-data-table-package/)
 -   [A more indepth introduction](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html)
 -   [Quick reference cheatsheet](https://s3.amazonaws.com/assets.datacamp.com/img/blog/data+table+cheat+sheet.pdf)
