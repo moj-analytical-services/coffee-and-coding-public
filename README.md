@@ -67,6 +67,7 @@ Contributions should adhere to the following conventions:
 
 Date | Time | Room | Title | Presenter | Abstract
 ---------------|-----|-----|------------|------------------|------------------------------------
+Friday 27th March 2020 | 14.00 | Skype | [Introduction to spatial analysis in R](https://github.com/Anthony-HTF/Spatial_Analysis_R) | Anthony Ash (MHCLG) | With increasing use of open source software it is becoming easier to represent data geographically. This talk will introduce you to the latest ways of interrogating geographical data in R.
 Friday 13th March 2020 | 13.00 | 5.28A (102PF) | Scraping, Cleaning and Measuring the Readability of GOV.UK Content with R | Sandy Li | Abstract available only to MoJ Colleagues.
 Wednesday 26th February 2020 | 14.00 | 1.02 (10SC) | Modelling in R; Github Collaboration; and the Sentencing Review 2019 | Matt Funnell | This presentative covers work towards the ad hoc Sentencing Review 2019 - in particular the process of converting an excel model to R; and working collaboratively in GitHub at pace. Presentation only available internally.
 Tuesday 4th February 2020 | 11.00 | Conf 1A (102PF) | Linear Programming in R | David Hawes | This presentation covers the use of linear programming techniques in R, and how this was used to support analysis for the Prison Estate Transformation Programme.
