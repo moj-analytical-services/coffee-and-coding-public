@@ -67,6 +67,7 @@ Contributions should adhere to the following conventions:
 
 Date | Time | Room | Title | Presenter | Abstract
 ---------------|-----|-----|------------|------------------|------------------------------------
+Monday 27th April 2020 | 15:00 | Skype | Introduction to Airflow | Karik Isichei | Airflow is a Python package that allows users to group a set of tasks (that may or may not be dependent on one another) into a single pipeline. This pipeline can be set to run on a regular schedule managed by Airflow. We’ll run through the basics of what Airflow is, some of the key ideas behind the scheduler and how to set up your own automated tasks and pipelines on the Analytical Platform.
 Friday 27th March 2020 | 14.00 | Skype | [Introduction to spatial analysis in R](https://github.com/Anthony-HTF/Spatial_Analysis_R) | Anthony Ash (MHCLG) | With increasing use of open source software it is becoming easier to represent data geographically. This talk will introduce you to the latest ways of interrogating geographical data in R.
 Friday 13th March 2020 | 13.00 | 5.28A (102PF) | Scraping, Cleaning and Measuring the Readability of GOV.UK Content with R | Sandy Li | Abstract available only to MoJ Colleagues.
 Wednesday 26th February 2020 | 14.00 | 1.02 (10SC) | Modelling in R; Github Collaboration; and the Sentencing Review 2019 | Matt Funnell | This presentative covers work towards the ad hoc Sentencing Review 2019 - in particular the process of converting an excel model to R; and working collaboratively in GitHub at pace. Presentation only available internally.
