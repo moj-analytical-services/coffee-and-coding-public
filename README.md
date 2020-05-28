@@ -43,7 +43,7 @@ Watch this space for developments!
 Thank you for volunteering to present at Coffee & Coding! Here is a checklist of things a member of the Coffee & Coding team may ask you.
 
 * A few weeks before the presentation, please provide a short description of your talk that we can include in the calendar invite & on our Coffee and Coding repositories
-* Please make sure you're able to present over Skype to ensure your presentation is flexible working friendly
+* Please make sure you're able to present over Skype or Teams to ensure your presentation is flexible working friendly
 * If there's any material you'd like to be available to participants during the session (for example if you are doing a tutorial), make sure you add this to our repositories before the session
 
 Let us know if you're happy for us to:
