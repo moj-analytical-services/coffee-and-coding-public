@@ -15,7 +15,7 @@ This repo is public to allow wider access of the MoJ C&C materials. Therefore, a
 ## Contact
 
 Need more information? Interested in presenting or helping to organise meetings? Get in touch with our mailbox:
-[Coffee-and-Coding@justice.gov.uk](Coffee-and-Coding@justice.gov.uk)
+Coffee-and-Coding(at) justice.gov.uk
 
 The MoJ Coffee and Coding Committee are:
 * Katharine Breeze
